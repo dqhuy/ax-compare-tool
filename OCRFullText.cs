@@ -22,14 +22,11 @@ namespace ax_tool
 
         private string[] processedData = new string[3] { string.Empty, string.Empty, string.Empty };
         private DateTime startTime;
-        private void button1_Click(object sender, EventArgs e)
-        {
+        private bool isRuningOCR { get; set; }
 
-        }
 
         private void backgroundWorkerOCR_DoWork(object sender, DoWorkEventArgs e)
         {
-            backgroundWorkerOCR.WorkerReportsProgress = true;
             runOCR(e);
         }
 
@@ -47,7 +44,7 @@ namespace ax_tool
                 string resultFolder = txtOutputFolder.Text;
 
                 //loop all file => run ocr then compare result
-                string resultFilePath = Path.Combine(resultFolder, "ocr-result.csv");
+                string resultFilePath = Path.Combine(resultFolder, "ax-compare.csv");
                 if (File.Exists(resultFilePath))
                 {
                     File.Delete(resultFilePath);
@@ -78,6 +75,11 @@ namespace ax_tool
                     i.EndsWith(".png") ||
                     i.EndsWith("pdf")))
                 {
+                    if (backgroundWorkerOCR.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        break;
+                    }
                     FileInfo orginalfileInfo = new FileInfo(f);
                     FileInfo preprocessedFileInfo = new FileInfo(Path.Combine(preprocessedImageFolder, orginalfileInfo.Name));
 
@@ -103,6 +105,7 @@ namespace ax_tool
                     List<OCRResult> ocrResults = APIs.API.RecognizeVBHC(orginalfileInfo.FullName);
                     List<OCRResult> ocrResults2 = APIs.API.RecognizeVBHC(preprocessedFileInfo.FullName);
 
+                    System.Threading.Thread.Sleep(1000);
                     //output record format
                     // filename, totalword, averageConfidence
                     long totalWord, totalWord2, deltaWord = 0;
@@ -164,13 +167,13 @@ namespace ax_tool
             int totalprocessed = int.Parse(processedData[0]);
             DateTime endTime = DateTime.Now;
             Double elapsed = ((TimeSpan)(endTime - startTime)).TotalSeconds;
-            double speed = elapsed/totalprocessed;
+            double speed = elapsed / totalprocessed;
 
             progressBarOCR.Value = e.ProgressPercentage;
             lbStatus.Text = processedData[0] + " / " + processedData[1] + "- File: " + processedData[2];
             if (totalprocessed > 1)
             {
-                lbStatus.Text += " - Everage time(s): "+ String.Format("{0:0.0}", speed);
+                lbStatus.Text += " - Everage time(s): " + String.Format("{0:0.0}", speed);
             }
             else
             {
@@ -180,8 +183,17 @@ namespace ax_tool
 
         private void backgroundWorkerOCR_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            lbStatus.Text = lbStatus.Text + " DONE ";
-            btnRunOCR.Enabled = true; ;
+            if (e.Cancelled)
+            {
+                lbStatus.Text = lbStatus.Text + " - CANCELED ";
+                btnRunOCR.Text = "Run";
+                btnRunOCR.Enabled = true;
+            }
+            else
+            {
+                lbStatus.Text = lbStatus.Text + " - DONE ";
+            }
+
         }
 
         private void btnOpenImageFolder_Click(object sender, EventArgs e)
@@ -204,28 +216,53 @@ namespace ax_tool
 
         private void btnRunOCR_Click(object sender, EventArgs e)
         {
-            if (!System.IO.Directory.Exists(txtImageFolder.Text))
-            {
-                MessageBox.Show("Image folder is not exist!");
-                return;
-            }
-            if (!System.IO.Directory.Exists(txtOutputFolder.Text))
-            {
-                MessageBox.Show("Output folder is not exist!");
-                return;
-            }
 
-            if (!string.IsNullOrEmpty(txtOCRServer.Text))
-            {
-                APIs.SetServerAddress("192.168.6.90");
-            }
-            //Everything is ready
-            lbStatus.Text = string.Empty;
-            progressBarOCR.Value = 0;
-            btnRunOCR.Enabled = false;
-            startTime = DateTime.Now;
 
-            backgroundWorkerOCR.RunWorkerAsync();
+            if (!isRuningOCR) // start runing ocr
+            {
+                if (backgroundWorkerOCR.IsBusy)
+                {
+                    MessageBox.Show("Background worker is busy. Please wait and try again later");
+                    return;
+                }
+
+                if (!System.IO.Directory.Exists(txtImageFolder.Text))
+                {
+                    MessageBox.Show("Image folder is not exist!");
+                    return;
+                }
+                if (!System.IO.Directory.Exists(txtOutputFolder.Text))
+                {
+                    MessageBox.Show("Output folder is not exist!");
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(txtOCRServer.Text))
+                {
+                    APIs.SetServerAddress("192.168.6.90");
+                }
+                //Everything is ready
+                lbStatus.Text = string.Empty;
+                progressBarOCR.Value = 0;
+                btnRunOCR.Text = "Cancel";
+                startTime = DateTime.Now;
+                lbStatus.Text = string.Empty;
+                progressBarOCR.Value = 0;
+
+                isRuningOCR = !isRuningOCR;
+
+
+                backgroundWorkerOCR.WorkerReportsProgress = true;
+                backgroundWorkerOCR.WorkerSupportsCancellation = true;
+                backgroundWorkerOCR.RunWorkerAsync();
+            }
+            else // stop runing ocr
+            {
+                backgroundWorkerOCR.CancelAsync();
+                btnRunOCR.Text = "Canceling";
+                btnRunOCR.Enabled = false;
+                isRuningOCR = !isRuningOCR;
+            }
         }
 
         private void btnSelectPreprocessedFolder_Click(object sender, EventArgs e)
@@ -244,15 +281,15 @@ namespace ax_tool
 
         private void setDefaultValeForDebug()
         {
-            txtOCRServer.Text = "192.168.6.90";
+            txtOCRServer.Text = string.Empty;
             txtImageFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\images";
             txtPreprocessedImageFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\images\\out";
             txtOutputFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\ocr-compare";
 
-            txtOCRServer.Text = string.Empty;// "192.168.6.90";
-            txtImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images";
-            txtPreprocessedImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images\\out";
-            txtOutputFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\ocr-compare";
+            //txtOCRServer.Text = "192.168.6.90";
+            //txtImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images";
+            //txtPreprocessedImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images\\out";
+            //txtOutputFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\ocr-compare";
 
 
         }

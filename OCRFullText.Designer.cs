@@ -50,49 +50,56 @@ namespace ax_tool
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(260, 26);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(305, 9);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(147, 17);
+            this.label1.Size = new System.Drawing.Size(252, 29);
             this.label1.TabIndex = 0;
             this.label1.Text = "Compare OCR Quality";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(28, 117);
+            this.label2.Location = new System.Drawing.Point(35, 146);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(136, 17);
+            this.label2.Size = new System.Drawing.Size(160, 20);
             this.label2.TabIndex = 1;
             this.label2.Text = "Orginal Image folder";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(28, 220);
+            this.label3.Location = new System.Drawing.Point(35, 275);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(91, 17);
+            this.label3.Size = new System.Drawing.Size(106, 20);
             this.label3.TabIndex = 2;
             this.label3.Text = "Output folder";
             // 
             // txtImageFolder
             // 
-            this.txtImageFolder.Location = new System.Drawing.Point(31, 137);
+            this.txtImageFolder.Location = new System.Drawing.Point(39, 171);
+            this.txtImageFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtImageFolder.Name = "txtImageFolder";
-            this.txtImageFolder.Size = new System.Drawing.Size(499, 22);
+            this.txtImageFolder.Size = new System.Drawing.Size(623, 27);
             this.txtImageFolder.TabIndex = 3;
             // 
             // txtOutputFolder
             // 
-            this.txtOutputFolder.Location = new System.Drawing.Point(31, 240);
+            this.txtOutputFolder.Location = new System.Drawing.Point(39, 300);
+            this.txtOutputFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(499, 22);
+            this.txtOutputFolder.Size = new System.Drawing.Size(623, 27);
             this.txtOutputFolder.TabIndex = 4;
             // 
             // btnOpenImageFolder
             // 
-            this.btnOpenImageFolder.Location = new System.Drawing.Point(551, 137);
+            this.btnOpenImageFolder.Location = new System.Drawing.Point(689, 171);
+            this.btnOpenImageFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOpenImageFolder.Name = "btnOpenImageFolder";
-            this.btnOpenImageFolder.Size = new System.Drawing.Size(75, 23);
+            this.btnOpenImageFolder.Size = new System.Drawing.Size(94, 29);
             this.btnOpenImageFolder.TabIndex = 5;
             this.btnOpenImageFolder.Text = "Select";
             this.btnOpenImageFolder.UseVisualStyleBackColor = true;
@@ -100,9 +107,10 @@ namespace ax_tool
             // 
             // btnOpenOutputFolder
             // 
-            this.btnOpenOutputFolder.Location = new System.Drawing.Point(551, 240);
+            this.btnOpenOutputFolder.Location = new System.Drawing.Point(689, 300);
+            this.btnOpenOutputFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOpenOutputFolder.Name = "btnOpenOutputFolder";
-            this.btnOpenOutputFolder.Size = new System.Drawing.Size(75, 23);
+            this.btnOpenOutputFolder.Size = new System.Drawing.Size(94, 29);
             this.btnOpenOutputFolder.TabIndex = 6;
             this.btnOpenOutputFolder.Text = "Select";
             this.btnOpenOutputFolder.UseVisualStyleBackColor = true;
@@ -110,17 +118,19 @@ namespace ax_tool
             // 
             // progressBarOCR
             // 
-            this.progressBarOCR.Location = new System.Drawing.Point(31, 293);
+            this.progressBarOCR.Location = new System.Drawing.Point(39, 366);
+            this.progressBarOCR.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.progressBarOCR.Name = "progressBarOCR";
-            this.progressBarOCR.Size = new System.Drawing.Size(499, 23);
+            this.progressBarOCR.Size = new System.Drawing.Size(624, 29);
             this.progressBarOCR.TabIndex = 7;
             // 
             // btnRunOCR
             // 
             this.btnRunOCR.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRunOCR.Location = new System.Drawing.Point(551, 293);
+            this.btnRunOCR.Location = new System.Drawing.Point(689, 366);
+            this.btnRunOCR.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnRunOCR.Name = "btnRunOCR";
-            this.btnRunOCR.Size = new System.Drawing.Size(75, 31);
+            this.btnRunOCR.Size = new System.Drawing.Size(94, 39);
             this.btnRunOCR.TabIndex = 9;
             this.btnRunOCR.Text = "Run";
             this.btnRunOCR.UseVisualStyleBackColor = true;
@@ -129,9 +139,10 @@ namespace ax_tool
             // lbStatus
             // 
             this.lbStatus.AutoSize = true;
-            this.lbStatus.Location = new System.Drawing.Point(28, 273);
+            this.lbStatus.Location = new System.Drawing.Point(35, 341);
+            this.lbStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbStatus.Name = "lbStatus";
-            this.lbStatus.Size = new System.Drawing.Size(65, 17);
+            this.lbStatus.Size = new System.Drawing.Size(77, 20);
             this.lbStatus.TabIndex = 10;
             this.lbStatus.Text = "Progress";
             // 
@@ -143,9 +154,10 @@ namespace ax_tool
             // 
             // btnSelectPreprocessedFolder
             // 
-            this.btnSelectPreprocessedFolder.Location = new System.Drawing.Point(551, 189);
+            this.btnSelectPreprocessedFolder.Location = new System.Drawing.Point(689, 236);
+            this.btnSelectPreprocessedFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSelectPreprocessedFolder.Name = "btnSelectPreprocessedFolder";
-            this.btnSelectPreprocessedFolder.Size = new System.Drawing.Size(75, 23);
+            this.btnSelectPreprocessedFolder.Size = new System.Drawing.Size(94, 29);
             this.btnSelectPreprocessedFolder.TabIndex = 13;
             this.btnSelectPreprocessedFolder.Text = "Select";
             this.btnSelectPreprocessedFolder.UseVisualStyleBackColor = true;
@@ -153,42 +165,45 @@ namespace ax_tool
             // 
             // txtPreprocessedImageFolder
             // 
-            this.txtPreprocessedImageFolder.Location = new System.Drawing.Point(31, 189);
+            this.txtPreprocessedImageFolder.Location = new System.Drawing.Point(39, 236);
+            this.txtPreprocessedImageFolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPreprocessedImageFolder.Name = "txtPreprocessedImageFolder";
-            this.txtPreprocessedImageFolder.Size = new System.Drawing.Size(499, 22);
+            this.txtPreprocessedImageFolder.Size = new System.Drawing.Size(623, 27);
             this.txtPreprocessedImageFolder.TabIndex = 12;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(28, 169);
+            this.label5.Location = new System.Drawing.Point(35, 211);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(183, 17);
+            this.label5.Size = new System.Drawing.Size(216, 20);
             this.label5.TabIndex = 11;
             this.label5.Text = "Pre-processed image folder";
             // 
             // txtOCRServer
             // 
-            this.txtOCRServer.Location = new System.Drawing.Point(31, 81);
+            this.txtOCRServer.Location = new System.Drawing.Point(39, 101);
+            this.txtOCRServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtOCRServer.Name = "txtOCRServer";
-            this.txtOCRServer.Size = new System.Drawing.Size(499, 22);
+            this.txtOCRServer.Size = new System.Drawing.Size(623, 27);
             this.txtOCRServer.TabIndex = 15;
-            this.txtOCRServer.Text = "192.168.6.90";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(28, 61);
+            this.label4.Location = new System.Drawing.Point(35, 76);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(223, 17);
+            this.label4.Size = new System.Drawing.Size(265, 20);
             this.label4.TabIndex = 14;
             this.label4.Text = "AX Server (Set empty to run local)";
             // 
             // OCRFullText
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(653, 586);
+            this.ClientSize = new System.Drawing.Size(816, 433);
             this.Controls.Add(this.txtOCRServer);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnSelectPreprocessedFolder);
@@ -204,8 +219,10 @@ namespace ax_tool
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "OCRFullText";
-            this.Text = "OCR Full text";
+            this.Text = "AX OCR Compare";
             this.Load += new System.EventHandler(this.OCRFullText_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
