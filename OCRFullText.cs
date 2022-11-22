@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using AX.AXSDK;
 using OneAPI;
-
+using Newtonsoft.Json;
 namespace ax_tool
 {
     public partial class OCRFullText : Form
@@ -55,12 +55,27 @@ namespace ax_tool
 
                 streamWriter.WriteLine(string.Join(",", new string[]{
                     "File",
-                    "Total_word",
-                    "Average_Confidence",
-                    "Total_word_2",
-                    "Average_Confidence_2",
-                    "Delta_word",
-                    "Delta_Confidence"
+
+                    "Total word",
+                    "Word Confidence",
+                    "Total line",
+                    "Line confiden",
+                    "Total page",
+                    "Page confidence",
+
+                    "Total word 2",
+                    "Word Confidence 2",
+                    "Total line 2",
+                    "Line confiden 2",
+                    "Total page 2",
+                    "Page confidence 2",
+
+                    "Delta Total word",
+                    "Detlta Word Confidence",
+                    "Delta Total line",
+                    "Delta Line confiden",
+                    "Delta Total page",
+                    "Delta Page confidence",
                 }));
 
                 int totalFile = Directory.EnumerateFiles(imageFolder).Count();
@@ -75,6 +90,7 @@ namespace ax_tool
                     i.EndsWith(".png") ||
                     i.EndsWith("pdf")))
                 {
+
                     if (backgroundWorkerOCR.CancellationPending)
                     {
                         e.Cancel = true;
@@ -83,7 +99,7 @@ namespace ax_tool
                     FileInfo orginalfileInfo = new FileInfo(f);
                     FileInfo preprocessedFileInfo = new FileInfo(Path.Combine(preprocessedImageFolder, orginalfileInfo.Name));
 
-
+                   
                     fileIndex++;
                     int progressValue = 100 * fileIndex / totalFile;
                     processedData[0] = fileIndex.ToString();
@@ -105,27 +121,59 @@ namespace ax_tool
                     List<OCRResult> ocrResults = APIs.API.RecognizeVBHC(orginalfileInfo.FullName);
                     List<OCRResult> ocrResults2 = APIs.API.RecognizeVBHC(preprocessedFileInfo.FullName);
 
-                    System.Threading.Thread.Sleep(1000);
-                    //output record format
-                    // filename, totalword, averageConfidence
-                    long totalWord, totalWord2, deltaWord = 0;
-                    double averageConfi, averageConfi2, deltaConfi = 0.0;
+                    //write to debug 
+                    System.Diagnostics.Debug.WriteLine("OCR RESULT - " + orginalfileInfo.Name);
+                    System.Diagnostics.Debug.WriteLine(JsonConvert.SerializeObject(ocrResults));
+                    System.Diagnostics.Debug.WriteLine("OCR RESULT 2 - " + preprocessedFileInfo.Name);
+                    System.Diagnostics.Debug.WriteLine(JsonConvert.SerializeObject(ocrResults2));
+                    System.Diagnostics.Debug.WriteLine("-------------------------");
+                    //end write to debug
 
-                    averageOCRResult(ocrResults, out totalWord, out averageConfi);
-                    averageOCRResult(ocrResults2, out totalWord2, out averageConfi2);
+                    //output record format
+                    // filename, total_word, word_confidence, total_line,line_confidence, total_page, page_confidence
+                    long totalWord, totalWord2, deltaWord = 0;
+                    double wordConfidence, wordConfidence2, deltaWordConfidence = 0.0;
+
+                    long totalLine, totalLine2, deltaLine = 0;
+                    double LineConfidence, LineConfidence2, deltaLineConfidence = 0.0;
+
+                    long totalPage, totalPage2, deltaPage = 0;
+                    double PageConfidence, PageConfidence2, deltaPageConfidence = 0.0;
+
+                    aggregateOCRResult(ocrResults, out totalWord, out wordConfidence, out totalLine, out LineConfidence, out totalPage, out PageConfidence);
+                    aggregateOCRResult(ocrResults2, out totalWord2, out wordConfidence2, out totalLine2, out LineConfidence2, out totalPage2, out PageConfidence2);
 
                     deltaWord = totalWord2 - totalWord;
-                    deltaConfi = averageConfi2 - averageConfi;
+                    deltaWordConfidence = wordConfidence2 - wordConfidence;
+                    deltaLine = totalLine2 - totalLine;
+                    deltaLineConfidence = LineConfidence2 - LineConfidence;
+                    deltaPage = totalPage2 - totalPage;
+                    deltaPageConfidence = PageConfidence2 - PageConfidence;
 
                     string filename = new FileInfo(f).Name;
                     string resultText = string.Join(",", new string[] {
                         filename,
+
                         totalWord.ToString(),
-                        averageConfi.ToString(),
+                        wordConfidence.ToString(),
+                        totalLine.ToString(),
+                        LineConfidence.ToString(),
+                        totalPage.ToString(),
+                        PageConfidence.ToString(),
+
                         totalWord2.ToString(),
-                        averageConfi2.ToString(),
+                        wordConfidence2.ToString(),
+                        totalLine2.ToString(),
+                        LineConfidence2.ToString(),
+                        totalPage2.ToString(),
+                        PageConfidence2.ToString(),
+
                         deltaWord.ToString(),
-                        deltaConfi.ToString()
+                        deltaWordConfidence.ToString(),
+                        deltaLine.ToString(),
+                        deltaLineConfidence.ToString(),
+                        deltaPage.ToString(),
+                        deltaPageConfidence.ToString(),
                     });
 
                     streamWriter.WriteLine(resultText);
@@ -141,24 +189,52 @@ namespace ax_tool
             }
         }
 
-        private void averageOCRResult(List<OCRResult> ocrResults, out long totalWord, out double averageConfidence)
+        private void aggregateOCRResult(List<OCRResult> ocrResults, out long totalWord, out double wordConfidence, out long totalLine, out double lineConfidence, out long totalPage, out double pageConfidence)
         {
-            totalWord = 0;
-            averageConfidence = 0;
-            double totalConfi = 0;
-
-            foreach (var r in ocrResults)
+            totalWord = totalLine = totalPage = 0;
+            double totalwordConfidence = 0, totalLineConfidence = 0, totalPageConfidence = 0;
+            wordConfidence = lineConfidence = pageConfidence = 1;
+            foreach (var p in ocrResults.Where(x => x.LineInfos != null))
             {
-                if (r.WordInfos.Count() > 0)
+                totalLine += p.LineInfos.Count();
+                totalLineConfidence += p.LineInfos.Sum(x => x.LineConfidence);
+
+                foreach (var l in p.LineInfos.Where(x => x.WordConfidences != null))
                 {
-                    totalWord += r.WordInfos.Count();
-                    totalConfi += r.WordInfos.Sum(x => x.Confidence);
+                    totalwordConfidence += l.WordConfidences.Sum(x => x);
+                    totalWord += l.WordConfidences.Count();
+
+
                 }
 
+                double tempPageConfidence = p.LineInfos.Sum(x => x.LineConfidence);
+                totalPageConfidence += tempPageConfidence / p.LineInfos.Count();
             }
-            if (totalWord != 0)
+
+            totalPage = ocrResults.Count();
+            if (totalWord > 0)
             {
-                averageConfidence = totalConfi / totalWord;
+                wordConfidence = totalwordConfidence / totalWord;
+            }
+            else
+            {
+                wordConfidence = 0;
+            }
+            if (totalLine > 0)
+            {
+                lineConfidence = totalLineConfidence / totalLine;
+            }
+            else
+            {
+                lineConfidence = 0;
+            }
+            if (totalPage > 0)
+            {
+                pageConfidence = totalPageConfidence / totalPage;
+            }
+            else
+            {
+                pageConfidence = 0;
             }
         }
 
@@ -183,17 +259,19 @@ namespace ax_tool
 
         private void backgroundWorkerOCR_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            
             if (e.Cancelled)
             {
                 lbStatus.Text = lbStatus.Text + " - CANCELED ";
-                btnRunOCR.Text = "Run";
-                btnRunOCR.Enabled = true;
             }
             else
             {
                 lbStatus.Text = lbStatus.Text + " - DONE ";
             }
 
+            isRuningOCR = false;
+            btnRunOCR.Text = "Run";
+            btnRunOCR.Enabled = true;
         }
 
         private void btnOpenImageFolder_Click(object sender, EventArgs e)
@@ -293,5 +371,6 @@ namespace ax_tool
 
 
         }
+
     }
 }
