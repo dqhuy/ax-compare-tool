@@ -64,9 +64,9 @@ namespace ax_tool
             this.label2.Location = new System.Drawing.Point(35, 146);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(160, 20);
+            this.label2.Size = new System.Drawing.Size(333, 20);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Orginal Image folder";
+            this.label2.Text = "Orginal Image folder (JPG, PNG, PDF only)";
             // 
             // label3
             // 
@@ -74,9 +74,9 @@ namespace ax_tool
             this.label3.Location = new System.Drawing.Point(35, 275);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(106, 20);
+            this.label3.Size = new System.Drawing.Size(236, 20);
             this.label3.TabIndex = 2;
-            this.label3.Text = "Output folder";
+            this.label3.Text = "Output folder (Output: cvs file)";
             // 
             // txtImageFolder
             // 
@@ -177,9 +177,9 @@ namespace ax_tool
             this.label5.Location = new System.Drawing.Point(35, 211);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(216, 20);
+            this.label5.Size = new System.Drawing.Size(532, 20);
             this.label5.TabIndex = 11;
-            this.label5.Text = "Pre-processed image folder";
+            this.label5.Text = "Pre-processed image folder (Files have same name with above folder)";
             // 
             // txtOCRServer
             // 
