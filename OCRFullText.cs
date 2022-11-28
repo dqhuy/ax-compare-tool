@@ -86,17 +86,19 @@ namespace ax_tool
 
                 //loop all file => run ocr then compare result
 
-                int totalFile = Directory.EnumerateFiles(imageFolder).Count();
+                var listFile = Directory.EnumerateFiles(imageFolder, "*.*", SearchOption.AllDirectories).
+                    Where(i => i.EndsWith(".jpg") ||
+                    i.EndsWith(".png") ||
+                    i.EndsWith("pdf"));
+
+                int totalFile = listFile.Count();
                 int fileIndex = 0;
                 if (totalFile == 0)
                 {
                     MessageBox.Show("There is no image in folder: " + imageFolder);
                     return;
                 }
-                foreach (var f in Directory.EnumerateFiles(imageFolder).
-                    Where(i => i.EndsWith(".jpg") ||
-                    i.EndsWith(".png") ||
-                    i.EndsWith("pdf")))
+                foreach (var f in listFile)
                 {
 
                     if (backgroundWorkerOCR.CancellationPending)
@@ -105,7 +107,7 @@ namespace ax_tool
                         break;
                     }
                     FileInfo orginalfileInfo = new FileInfo(f);
-                    FileInfo preprocessedFileInfo = new FileInfo(Path.Combine(preprocessedImageFolder, orginalfileInfo.Name));
+                    FileInfo preprocessedFileInfo = new FileInfo(orginalfileInfo.FullName.Replace(imageFolder, preprocessedImageFolder));
 
 
                     fileIndex++;
@@ -130,9 +132,9 @@ namespace ax_tool
                     List<OCRResult> ocrResults2 = APIs.API.RecognizeVBHC(preprocessedFileInfo.FullName);
 
                     //write to debug 
-                    System.Diagnostics.Debug.WriteLine("OCR RESULT - " + orginalfileInfo.Name);
+                    System.Diagnostics.Debug.WriteLine("OCR RESULT - " + orginalfileInfo.FullName.Replace(imageFolder, ""));
                     System.Diagnostics.Debug.WriteLine(JsonConvert.SerializeObject(ocrResults));
-                    System.Diagnostics.Debug.WriteLine("OCR RESULT 2 - " + preprocessedFileInfo.Name);
+                    System.Diagnostics.Debug.WriteLine("OCR RESULT 2 - " + preprocessedFileInfo.FullName.Replace(preprocessedImageFolder, ""));
                     System.Diagnostics.Debug.WriteLine(JsonConvert.SerializeObject(ocrResults2));
                     System.Diagnostics.Debug.WriteLine("-------------------------");
                     //end write to debug
@@ -158,7 +160,7 @@ namespace ax_tool
                     deltaPage = totalPage2 - totalPage;
                     deltaPageConfidence = PageConfidence2 - PageConfidence;
 
-                    string filename = new FileInfo(f).Name;
+                    string filename = orginalfileInfo.FullName.Replace(imageFolder, "");
                     string resultText = string.Join(",", new string[] {
                         filename,
 
@@ -257,7 +259,7 @@ namespace ax_tool
             double speed = elapsed / totalprocessed;
 
             progressBarOCR.Value = e.ProgressPercentage;
-            lbStatus.Text = processedData[0] + " / " + processedData[1] + "- File: " + processedData[2];
+            lbStatus.Text = processedData[0] + " / " + processedData[1];
             if (totalprocessed > 1)
             {
                 lbStatus.Text += " - Everage time(s): " + String.Format("{0:0.0}", speed);
@@ -266,6 +268,7 @@ namespace ax_tool
             {
                 lbStatus.Text += " - Everage time(s): NaN";
             }
+            lbStatus.Text += " - File: " + processedData[2];
         }
 
         private void backgroundWorkerOCR_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -372,7 +375,7 @@ namespace ax_tool
         private void readSettingFile()
         {
             string settingText = File.ReadAllText(iniFileName);
-            if(string.IsNullOrEmpty(settingText))
+            if (string.IsNullOrEmpty(settingText))
             {
                 return;
             }
@@ -394,9 +397,9 @@ namespace ax_tool
                 intputFolder2 = txtPreprocessedImageFolder.Text,
                 saveFolder = txtOutputFolder.Text
             };
-              string iniJson=  JsonConvert.SerializeObject(s);
+            string iniJson = JsonConvert.SerializeObject(s);
 
-            var f = File.Open(iniFileName,FileMode.Truncate);
+            var f = File.Open(iniFileName, FileMode.Truncate);
             f.Close();
             File.WriteAllText(iniFileName, iniJson);
 
