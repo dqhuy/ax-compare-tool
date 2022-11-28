@@ -13,8 +13,17 @@ using OneAPI;
 using Newtonsoft.Json;
 namespace ax_tool
 {
+
     public partial class OCRFullText : Form
     {
+        struct CompareToolSetting
+        {
+            public string ocrSerName;
+            public string inputFolder1;
+            public string intputFolder2;
+            public string saveFolder;
+        }
+
         public OCRFullText()
         {
             InitializeComponent();
@@ -23,7 +32,7 @@ namespace ax_tool
         private string[] processedData = new string[3] { string.Empty, string.Empty, string.Empty };
         private DateTime startTime;
         private bool isRuningOCR { get; set; }
-
+        private string iniFileName = "compareTool.ini";
 
         private void backgroundWorkerOCR_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -36,26 +45,20 @@ namespace ax_tool
         /// </summary>
         private void runOCR(DoWorkEventArgs e)
         {
+            string imageFolder = txtImageFolder.Text;
+            string preprocessedImageFolder = txtPreprocessedImageFolder.Text;
+            string resultFolder = txtOutputFolder.Text;
 
-            try
+            string resultFilePath = Path.Combine(resultFolder, "ax-compare-" + DateTime.Now.Ticks.ToString() + ".csv");
+            if (File.Exists(resultFilePath))
             {
-                string imageFolder = txtImageFolder.Text;
-                string preprocessedImageFolder = txtPreprocessedImageFolder.Text;
-                string resultFolder = txtOutputFolder.Text;
+                File.Delete(resultFilePath);
+            }
 
-                //loop all file => run ocr then compare result
-                string resultFilePath = Path.Combine(resultFolder, "ax-compare.csv");
-                if (File.Exists(resultFilePath))
-                {
-                    File.Delete(resultFilePath);
-                }
-
-                StreamWriter streamWriter = new StreamWriter(resultFilePath);
-                streamWriter.AutoFlush = true;
-
-                streamWriter.WriteLine(string.Join(",", new string[]{
+            StreamWriter streamWriter = new StreamWriter(resultFilePath);
+            streamWriter.AutoFlush = true;
+            streamWriter.WriteLine(string.Join(",", new string[]{
                     "File",
-
                     "Total word",
                     "Word Confidence",
                     "Total line",
@@ -78,6 +81,11 @@ namespace ax_tool
                     "Delta Page confidence",
                 }));
 
+            try
+            {
+
+                //loop all file => run ocr then compare result
+
                 int totalFile = Directory.EnumerateFiles(imageFolder).Count();
                 int fileIndex = 0;
                 if (totalFile == 0)
@@ -99,7 +107,7 @@ namespace ax_tool
                     FileInfo orginalfileInfo = new FileInfo(f);
                     FileInfo preprocessedFileInfo = new FileInfo(Path.Combine(preprocessedImageFolder, orginalfileInfo.Name));
 
-                   
+
                     fileIndex++;
                     int progressValue = 100 * fileIndex / totalFile;
                     processedData[0] = fileIndex.ToString();
@@ -178,14 +186,17 @@ namespace ax_tool
 
                     streamWriter.WriteLine(resultText);
                 }
-                //close file
-                streamWriter.Flush();
-                streamWriter.Close();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 e.Cancel = true;
+            }
+            finally
+            {
+                // close file
+                streamWriter.Flush();
+                streamWriter.Close();
             }
         }
 
@@ -259,7 +270,7 @@ namespace ax_tool
 
         private void backgroundWorkerOCR_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            
+
             if (e.Cancelled)
             {
                 lbStatus.Text = lbStatus.Text + " - CANCELED ";
@@ -329,6 +340,8 @@ namespace ax_tool
 
                 isRuningOCR = !isRuningOCR;
 
+                //save last setting file
+                writeSettingFile();
 
                 backgroundWorkerOCR.WorkerReportsProgress = true;
                 backgroundWorkerOCR.WorkerSupportsCancellation = true;
@@ -338,7 +351,6 @@ namespace ax_tool
             {
                 backgroundWorkerOCR.CancelAsync();
                 btnRunOCR.Text = "Canceling";
-                btnRunOCR.Enabled = false;
                 isRuningOCR = !isRuningOCR;
             }
         }
@@ -354,23 +366,41 @@ namespace ax_tool
 
         private void OCRFullText_Load(object sender, EventArgs e)
         {
-            setDefaultValeForDebug();
+            readSettingFile();
         }
 
-        private void setDefaultValeForDebug()
+        private void readSettingFile()
         {
-            txtOCRServer.Text = string.Empty;
-            txtImageFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\images";
-            txtPreprocessedImageFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\images\\out";
-            txtOutputFolder.Text = "D:\\Google-drive-huy-work\\imagedata\\skew\\train\\ocr-compare";
+            string settingText = File.ReadAllText(iniFileName);
+            if(string.IsNullOrEmpty(settingText))
+            {
+                return;
+            }
+            CompareToolSetting s = JsonConvert.DeserializeObject<CompareToolSetting>(settingText);
 
-            //txtOCRServer.Text = "192.168.6.90";
-            //txtImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images";
-            //txtPreprocessedImageFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\images\\out";
-            //txtOutputFolder.Text = "\\\\huydq-pc\\imagedata\\skew\\train\\ocr-compare";
+            txtOCRServer.Text = s.ocrSerName;
+            txtImageFolder.Text = s.inputFolder1;
+            txtPreprocessedImageFolder.Text = s.intputFolder2;
+            txtOutputFolder.Text = s.saveFolder;
+        }
+
+        private void writeSettingFile()
+        {
+
+            CompareToolSetting s = new CompareToolSetting()
+            {
+                ocrSerName = txtOCRServer.Text,
+                inputFolder1 = txtImageFolder.Text,
+                intputFolder2 = txtPreprocessedImageFolder.Text,
+                saveFolder = txtOutputFolder.Text
+            };
+              string iniJson=  JsonConvert.SerializeObject(s);
+
+            var f = File.Open(iniFileName,FileMode.Truncate);
+            f.Close();
+            File.WriteAllText(iniFileName, iniJson);
 
 
         }
-
     }
 }
